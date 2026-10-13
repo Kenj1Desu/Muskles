@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#080b11" />
+  <meta name="theme-color" content="#0a0b0d" />
   <title>Kenji Lifts</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,181 +11,212 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #080b11;
+      background-color: #0a0b0d;
       color: #f8fafc;
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
       -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
     }
     .glass {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(17, 18, 21, 0.55);
+      backdrop-filter: blur(32px) saturate(210%);
+      -webkit-backdrop-filter: blur(32px) saturate(210%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0.5px 0 rgba(255, 255, 255, 0.08), 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    }
+    .glass-input {
+      background: rgba(10, 11, 13, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .stepper-btn {
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .stepper-btn:active {
-      transform: scale(0.92);
+      transform: scale(0.85);
+      background-color: #d2fe1a;
+      color: #0a0b0d;
+    }
+    .ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      z-index: -1;
+      opacity: 0.15;
+    }
+    .tab-pane {
+      transition: opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes overloadGlow {
+      0%, 100% { box-shadow: 0 0 4px rgba(210, 254, 26, 0.2); }
+      50% { box-shadow: 0 0 14px rgba(210, 254, 26, 0.45); }
+    }
+    .overload-glow {
+      animation: overloadGlow 2.5s infinite;
     }
   </style>
 </head>
 <body class="pb-28">
 
-  <!-- Sticky Top App Bar -->
-  <header class="glass border-b border-slate-800/80 sticky top-0 z-40 px-4 py-3 flex justify-between items-center">
+  <!-- Ambient Light Orbs -->
+  <div class="ambient-orb bg-lime-500 w-64 h-64 top-10 -left-20"></div>
+  <div class="ambient-orb bg-lime-700 w-80 h-80 top-1/3 -right-32"></div>
+
+  <!-- Sticky Top iOS-Style App Bar -->
+  <header class="glass sticky top-0 z-40 px-4 py-3.5 flex justify-between items-center border-t-0 border-x-0">
     <div class="flex items-center gap-2.5">
-      <!-- Barbells Logo -->
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-        <svg class="w-5 h-5 text-slate-950" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M2 10.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-1A1.5 1.5 0 0 1 2 13.5v-3zm4 1a1 1 0 0 1 1-1h1v5H7a1 1 0 0 1-1-1v-3zm12-1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-5zm2-1.5a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-3a1.5 1.5 0 0 1 1.5-1.5h1zM8 11.25h8v1.5H8v-1.5z"/>
-        </svg>
+      <!-- Rift-Inspired Cyber Barbell Logo -->
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-lime-500 via-lime-400 to-[#d2fe1a] flex items-center justify-center shadow-lg shadow-lime-500/10">
+        <span class="text-slate-950 font-extrabold text-base tracking-tighter">R</span>
       </div>
       <div>
-        <h1 class="text-base font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-cyan-300 bg-clip-text text-transparent">KENJI LIFTS</h1>
-        <p id="user-stats-banner" class="text-[11px] text-slate-400 font-medium tracking-wide">BW: -- kg</p>
+        <h1 class="text-base font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-[#d2fe1a] bg-clip-text text-transparent">KENJI LIFTS</h1>
+        <p id="user-stats-banner" class="text-[10px] text-slate-500 font-semibold tracking-wide uppercase">BW: -- kg</p>
       </div>
     </div>
     
-    <!-- Quick Rest Stopwatch Badge -->
-    <button onclick="toggleTimerModal()" id="timer-badge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-700/80 hover:border-cyan-500/50 text-xs font-semibold text-cyan-400 transition">
-      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      <span id="timer-display">Rest</span>
+    <!-- Stopwatch Badge -->
+    <button onclick="toggleTimerModal()" id="timer-badge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/80 border border-white/5 hover:border-[#d2fe1a]/50 text-[10px] font-bold text-[#d2fe1a] transition">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span id="timer-display" class="tracking-widest">REST</span>
     </button>
   </header>
 
   <!-- Main Container -->
-  <main class="p-4 max-w-md mx-auto space-y-4">
+  <main class="p-4 max-w-md mx-auto space-y-4 relative z-10">
 
     <!-- TAB 1: WORKOUT LOGGING -->
-    <section id="tab-log" class="space-y-4">
+    <section id="tab-log" class="space-y-4 tab-pane">
       
       <!-- Split Pills -->
-      <div class="space-y-1.5">
-        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Select Workout Split</label>
+      <div class="space-y-2">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block pl-1">Workout Split</label>
         <div class="grid grid-cols-2 gap-2" id="split-buttons"></div>
       </div>
 
       <!-- Exercise Selector Dropdown -->
-      <div class="space-y-1.5">
-        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Exercise</label>
+      <div class="space-y-2">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block pl-1">Selected Exercise</label>
         <div class="relative">
-          <select id="exercise-select" onchange="renderExerciseDetails()" class="w-full appearance-none bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm font-semibold text-slate-100 focus:outline-none focus:border-cyan-400 pr-10 shadow-sm"></select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          <select id="exercise-select" onchange="renderExerciseDetails()" class="w-full appearance-none glass rounded-2xl px-4 py-3.5 text-sm font-semibold text-slate-100 focus:outline-none focus:border-[#d2fe1a] pr-10 shadow-sm"></select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#d2fe1a]">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
           </div>
         </div>
       </div>
 
-      <!-- Live Exercise Card -->
-      <div class="bg-gradient-to-b from-slate-900 to-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3.5 shadow-xl">
+      <!-- Live Exercise Frosted Card -->
+      <div class="glass rounded-3xl p-5 space-y-4 shadow-2xl relative overflow-hidden">
         <div class="flex justify-between items-center">
-          <span id="target-muscle-badge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-950/80 text-cyan-300 border border-cyan-800/80 tracking-wide">Chest</span>
-          <span id="lift-rating-badge" class="text-xs font-bold text-amber-400">Rating: --</span>
+          <span id="target-muscle-badge" class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-[#d2fe1a]/10 text-[#d2fe1a] border border-[#d2fe1a]/20 tracking-widest uppercase">CHEST</span>
+          <span id="lift-rating-badge" class="text-xs font-bold text-amber-400/90 tracking-wide">Rating: --</span>
         </div>
 
-        <!-- Last Log Banner -->
-        <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800/80 text-xs">
-          <span class="text-slate-400 font-semibold block mb-1">Previous Session:</span>
-          <p id="prev-log-display" class="text-slate-300 italic">No previous logs for this exercise yet.</p>
+        <!-- Previous Log Banner -->
+        <div class="glass-input p-3.5 rounded-2xl border border-white/5 text-[11px] leading-relaxed">
+          <span class="text-slate-500 font-bold tracking-widest uppercase block mb-1">Previous Session</span>
+          <p id="prev-log-display" class="text-slate-300 italic">No logged lifts for this exercise.</p>
         </div>
 
         <!-- Stepper Input Section -->
-        <div class="space-y-3 pt-1">
-          <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-3.5">
             
             <!-- Weight Input with Steppers -->
-            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
-              <label class="text-[11px] font-medium text-slate-400 block text-center">Weight (kg)</label>
-              <div class="flex items-center gap-1.5">
-                <button onclick="adjustInput('input-weight', -2.5)" class="stepper-btn w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-bold flex items-center justify-center hover:bg-slate-700">-</button>
-                <input type="number" id="input-weight" placeholder="0" step="0.5" class="w-full bg-transparent text-center font-extrabold text-lg text-cyan-400 focus:outline-none" />
-                <button onclick="adjustInput('input-weight', 2.5)" class="stepper-btn w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-bold flex items-center justify-center hover:bg-slate-700">+</button>
+            <div class="glass-input p-3 rounded-2xl border border-white/5 space-y-1.5">
+              <label class="text-[10px] font-bold text-slate-500 block text-center uppercase tracking-widest">Weight (kg)</label>
+              <div class="flex items-center justify-between">
+                <button onclick="adjustInput('input-weight', -2.5)" class="stepper-btn w-9 h-9 rounded-xl bg-[#1a1b1f] border border-white/5 text-slate-200 font-bold text-lg flex items-center justify-center">-</button>
+                <input type="number" id="input-weight" placeholder="0" step="0.5" class="w-full bg-transparent text-center font-black text-xl text-[#d2fe1a] focus:outline-none" />
+                <button onclick="adjustInput('input-weight', 2.5)" class="stepper-btn w-9 h-9 rounded-xl bg-[#1a1b1f] border border-white/5 text-slate-200 font-bold text-lg flex items-center justify-center">+</button>
               </div>
             </div>
 
             <!-- Reps Input with Steppers -->
-            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
-              <label class="text-[11px] font-medium text-slate-400 block text-center">Reps</label>
-              <div class="flex items-center gap-1.5">
-                <button onclick="adjustInput('input-reps', -1)" class="stepper-btn w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-bold flex items-center justify-center hover:bg-slate-700">-</button>
-                <input type="number" id="input-reps" placeholder="0" class="w-full bg-transparent text-center font-extrabold text-lg text-emerald-400 focus:outline-none" />
-                <button onclick="adjustInput('input-reps', 1)" class="stepper-btn w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-bold flex items-center justify-center hover:bg-slate-700">+</button>
+            <div class="glass-input p-3 rounded-2xl border border-white/5 space-y-1.5">
+              <label class="text-[10px] font-bold text-slate-500 block text-center uppercase tracking-widest">Reps</label>
+              <div class="flex items-center justify-between">
+                <button onclick="adjustInput('input-reps', -1)" class="stepper-btn w-9 h-9 rounded-xl bg-[#1a1b1f] border border-white/5 text-slate-200 font-bold text-lg flex items-center justify-center">-</button>
+                <input type="number" id="input-reps" placeholder="0" class="w-full bg-transparent text-center font-black text-xl text-[#d2fe1a] focus:outline-none" />
+                <button onclick="adjustInput('input-reps', 1)" class="stepper-btn w-9 h-9 rounded-xl bg-[#1a1b1f] border border-white/5 text-slate-200 font-bold text-lg flex items-center justify-center">+</button>
               </div>
             </div>
 
           </div>
 
-          <!-- Log Button -->
-          <button onclick="logCurrentSet()" class="w-full bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-extrabold py-3 rounded-xl text-sm transition shadow-lg shadow-cyan-500/25 active:scale-[0.98]">
-            LOG SET
+          <!-- Solid Action Button -->
+          <button onclick="logCurrentSet()" class="w-full bg-[#d2fe1a] hover:bg-[#bfe613] text-slate-950 font-black py-4 rounded-2xl text-xs tracking-widest transition-all duration-300 shadow-lg shadow-[#d2fe1a]/15 active:scale-[0.98] uppercase">
+            Log set
           </button>
         </div>
       </div>
 
-      <!-- Today's Sets Stream -->
-      <div class="space-y-2 pt-2">
-        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex justify-between items-center">
+      <!-- Completed Sets -->
+      <div class="space-y-2.5 pt-1">
+        <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex justify-between items-center px-1">
           <span>Today's Sets</span>
-          <span id="session-count" class="text-cyan-400">0 completed</span>
+          <span id="session-count" class="text-[#d2fe1a] font-black">0 completed</span>
         </h3>
         <div id="session-sets-list" class="space-y-2 text-xs"></div>
       </div>
     </section>
 
     <!-- TAB 2: OVERLOAD & PROGRESS -->
-    <section id="tab-history" class="space-y-4 hidden">
-      <div class="flex justify-between items-center">
-        <h2 class="text-base font-extrabold text-slate-100">Progressive Overload</h2>
-      </div>
+    <section id="tab-history" class="space-y-4 hidden tab-pane">
+      <h2 class="text-sm font-extrabold text-slate-100 uppercase tracking-widest pl-1">Progressive Overload</h2>
       <div class="relative">
-        <select id="history-filter" onchange="renderHistory()" class="w-full appearance-none bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-200 focus:outline-none focus:border-cyan-400 pr-10"></select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        <select id="history-filter" onchange="renderHistory()" class="w-full appearance-none glass rounded-2xl px-4 py-3.5 text-xs font-bold text-slate-200 focus:outline-none focus:border-[#d2fe1a] pr-10"></select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#d2fe1a]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
         </div>
       </div>
       <div id="history-timeline" class="space-y-3"></div>
     </section>
 
     <!-- TAB 3: MUSCLE VOLUMES -->
-    <section id="tab-analytics" class="space-y-4 hidden">
-      <h2 class="text-base font-extrabold text-slate-100">Volume & Muscle Load</h2>
+    <section id="tab-analytics" class="space-y-4 hidden tab-pane">
+      <h2 class="text-sm font-extrabold text-slate-100 uppercase tracking-widest pl-1">Volume & Distribution</h2>
       <div class="grid grid-cols-2 gap-3">
-        <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800">
-          <span class="text-slate-400 text-xs font-medium">Total Volume</span>
-          <p id="stat-total-volume" class="text-xl font-black text-cyan-400 mt-1">0 kg</p>
+        <div class="glass p-4 rounded-3xl">
+          <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">Total Volume</span>
+          <p id="stat-total-volume" class="text-lg font-black text-[#d2fe1a] mt-1.5">0 kg</p>
         </div>
-        <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800">
-          <span class="text-slate-400 text-xs font-medium">Total Sets</span>
-          <p id="stat-total-sets" class="text-xl font-black text-emerald-400 mt-1">0</p>
+        <div class="glass p-4 rounded-3xl">
+          <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">Total Sets</span>
+          <p id="stat-total-sets" class="text-lg font-black text-slate-100 mt-1.5">0</p>
         </div>
       </div>
 
-      <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-3">
-        <h3 class="text-xs font-extrabold text-slate-300 uppercase tracking-wider">Target Muscle Distribution</h3>
-        <div id="muscle-breakdown" class="space-y-2.5"></div>
+      <div class="glass p-5 rounded-3xl space-y-4">
+        <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Primary Muscle Load</h3>
+        <div id="muscle-breakdown" class="space-y-3.5"></div>
       </div>
     </section>
 
     <!-- TAB 4: PROFILE & SETTINGS -->
-    <section id="tab-profile" class="space-y-4 hidden">
-      <h2 class="text-base font-extrabold text-slate-100">Profile & Benchmarks</h2>
-      <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-3">
+    <section id="tab-profile" class="space-y-4 hidden tab-pane">
+      <h2 class="text-sm font-extrabold text-slate-100 uppercase tracking-widest pl-1">Biometrics & Backups</h2>
+      <div class="glass p-5 rounded-3xl space-y-4">
         <div>
-          <label class="text-xs text-slate-400 block mb-1 font-medium">Body Weight (kg)</label>
-          <input type="number" id="input-bw" placeholder="Weight in kg" step="0.5" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm font-semibold text-slate-100 focus:border-cyan-400 focus:outline-none" />
+          <label class="text-[10px] text-slate-500 font-bold uppercase tracking-widest block mb-1.5">Body Weight (kg)</label>
+          <input type="number" id="input-bw" placeholder="0" step="0.5" class="w-full glass-input rounded-2xl p-3.5 text-sm font-bold text-slate-100 focus:border-[#d2fe1a] focus:outline-none" />
         </div>
         <div>
-          <label class="text-xs text-slate-400 block mb-1 font-medium">Height (cm)</label>
-          <input type="number" id="input-height" placeholder="Height in cm" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm font-semibold text-slate-100 focus:border-cyan-400 focus:outline-none" />
+          <label class="text-[10px] text-slate-500 font-bold uppercase tracking-widest block mb-1.5">Height (cm)</label>
+          <input type="number" id="input-height" placeholder="0" class="w-full glass-input rounded-2xl p-3.5 text-sm font-bold text-slate-100 focus:border-[#d2fe1a] focus:outline-none" />
         </div>
-        <button onclick="saveUserProfile()" class="w-full bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 font-bold py-2.5 rounded-xl text-sm transition">
-          Update Stats
+        <button onclick="saveUserProfile()" class="w-full bg-[#d2fe1a] hover:bg-[#bfe613] text-slate-950 font-black py-3 rounded-2xl text-xs tracking-widest transition-all">
+          Update Biometrics
         </button>
       </div>
 
       <!-- Backup and Restore -->
-      <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-3">
-        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Data Backup</h3>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="exportData()" class="bg-slate-950 border border-slate-800 hover:border-slate-700 py-2.5 rounded-xl text-xs font-semibold text-slate-300">Export Backup</button>
-          <button onclick="document.getElementById('import-file').click()" class="bg-slate-950 border border-slate-800 hover:border-slate-700 py-2.5 rounded-xl text-xs font-semibold text-slate-300">Import Backup</button>
+      <div class="glass p-5 rounded-3xl space-y-4">
+        <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Data Backup</h3>
+        <div class="grid grid-cols-2 gap-2.5">
+          <button onclick="exportData()" class="glass-input hover:border-white/10 py-3 rounded-2xl text-xs font-bold text-slate-300">Export JSON</button>
+          <button onclick="document.getElementById('import-file').click()" class="glass-input hover:border-white/10 py-3 rounded-2xl text-xs font-bold text-slate-300">Import JSON</button>
           <input type="file" id="import-file" onchange="importData(event)" class="hidden" accept=".json" />
         </div>
       </div>
@@ -193,41 +224,41 @@
 
   </main>
 
-  <!-- Rest Stopwatch Modal -->
-  <div id="timer-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-xs text-center space-y-4">
-      <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Rest Timer</h3>
-      <div id="modal-timer-countdown" class="text-4xl font-black text-cyan-400">00:00</div>
+  <!-- Rest Stopwatch iOS Sheet-Style Modal -->
+  <div id="timer-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-4 hidden">
+    <div class="glass rounded-t-[36px] sm:rounded-3xl p-6 w-full max-w-xs text-center space-y-5 border-x-0 border-b-0 sm:border-x sm:border-b transition-transform duration-300">
+      <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Recovery Countdown</h3>
+      <div id="modal-timer-countdown" class="text-5xl font-black text-[#d2fe1a] tracking-wider">00:00</div>
       <div class="grid grid-cols-3 gap-2">
-        <button onclick="startRestTimer(60)" class="bg-slate-800 hover:bg-slate-700 py-2 rounded-lg text-xs font-bold text-slate-200">60s</button>
-        <button onclick="startRestTimer(90)" class="bg-slate-800 hover:bg-slate-700 py-2 rounded-lg text-xs font-bold text-slate-200">90s</button>
-        <button onclick="startRestTimer(120)" class="bg-slate-800 hover:bg-slate-700 py-2 rounded-lg text-xs font-bold text-slate-200">120s</button>
+        <button onclick="startRestTimer(60)" class="glass-input hover:border-[#d2fe1a]/20 py-2.5 rounded-xl text-xs font-bold text-slate-200">60s</button>
+        <button onclick="startRestTimer(90)" class="glass-input hover:border-[#d2fe1a]/20 py-2.5 rounded-xl text-xs font-bold text-[#d2fe1a]">90s</button>
+        <button onclick="startRestTimer(120)" class="glass-input hover:border-[#d2fe1a]/20 py-2.5 rounded-xl text-xs font-bold text-slate-200">120s</button>
       </div>
-      <button onclick="toggleTimerModal()" class="w-full py-2 text-xs font-bold text-slate-400 hover:text-slate-200">Close</button>
+      <button onclick="toggleTimerModal()" class="w-full py-2.5 text-xs font-extrabold text-slate-500 hover:text-slate-300 uppercase tracking-widest">Dismiss</button>
     </div>
   </div>
 
-  <!-- Modern Floating Dock Navigation -->
-  <nav class="fixed bottom-3 left-4 right-4 max-w-md mx-auto glass border border-slate-800/80 rounded-2xl p-2 z-40 shadow-2xl flex justify-around items-center">
+  <!-- iOS Frosted Glass Bottom Float Bar -->
+  <nav class="fixed bottom-4 left-4 right-4 max-w-md mx-auto glass rounded-[24px] p-2.5 z-40 shadow-2xl flex justify-around items-center">
     
-    <button onclick="switchTab('log')" id="nav-log" class="flex flex-col items-center gap-1 text-cyan-400 py-1 px-3 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-      <span class="text-[10px] font-bold">Log</span>
+    <button onclick="switchTab('log')" id="nav-log" class="flex flex-col items-center gap-1 text-[#d2fe1a] py-1.5 px-3.5 transition duration-200 scale-100">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+      <span class="text-[9px] font-bold uppercase tracking-wider">Log</span>
     </button>
 
-    <button onclick="switchTab('history')" id="nav-history" class="flex flex-col items-center gap-1 text-slate-500 py-1 px-3 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-      <span class="text-[10px] font-bold">Overload</span>
+    <button onclick="switchTab('history')" id="nav-history" class="flex flex-col items-center gap-1 text-slate-500 py-1.5 px-3.5 transition duration-200">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      <span class="text-[9px] font-bold uppercase tracking-wider">Progress</span>
     </button>
 
-    <button onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 text-slate-500 py-1 px-3 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-      <span class="text-[10px] font-bold">Volume</span>
+    <button onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 text-slate-500 py-1.5 px-3.5 transition duration-200">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      <span class="text-[9px] font-bold uppercase tracking-wider">Volume</span>
     </button>
 
-    <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center gap-1 text-slate-500 py-1 px-3 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-      <span class="text-[10px] font-bold">Profile</span>
+    <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center gap-1 text-slate-500 py-1.5 px-3.5 transition duration-200">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <span class="text-[9px] font-bold uppercase tracking-wider">Profile</span>
     </button>
 
   </nav>
@@ -287,15 +318,25 @@
 
     function switchTab(tabId) {
       ['log', 'history', 'analytics', 'profile'].forEach(t => {
-        document.getElementById(`tab-${t}`).classList.add('hidden');
+        const pane = document.getElementById(`tab-${t}`);
+        pane.classList.add('hidden');
+        pane.style.opacity = '0';
+        pane.style.transform = 'translateY(12px)';
         const navEl = document.getElementById(`nav-${t}`);
-        navEl.classList.remove('text-cyan-400');
+        navEl.classList.remove('text-[#d2fe1a]', 'scale-105');
         navEl.classList.add('text-slate-500');
       });
-      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      
+      const activePane = document.getElementById(`tab-${tabId}`);
+      activePane.classList.remove('hidden');
+      setTimeout(() => {
+        activePane.style.opacity = '1';
+        activePane.style.transform = 'translateY(0)';
+      }, 50);
+
       const activeNav = document.getElementById(`nav-${tabId}`);
       activeNav.classList.remove('text-slate-500');
-      activeNav.classList.add('text-cyan-400');
+      activeNav.classList.add('text-[#d2fe1a]', 'scale-105');
 
       if (tabId === 'history') renderHistory();
       if (tabId === 'analytics') renderAnalytics();
@@ -308,10 +349,10 @@
     function renderSplitButtons() {
       const container = document.getElementById('split-buttons');
       container.innerHTML = Object.keys(ROUTINES).map(split => `
-        <button onclick="setSplit('${split}')" class="py-2.5 px-3 text-xs font-bold rounded-xl border transition ${
+        <button onclick="setSplit('${split}')" class="py-2.5 px-3 text-xs font-bold rounded-2xl border transition-all duration-300 active:scale-95 ${
           currentSplit === split 
-            ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/80 shadow-md shadow-cyan-500/10' 
-            : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+            ? 'bg-[#d2fe1a]/15 text-[#d2fe1a] border-[#d2fe1a]/60 shadow-lg shadow-[#d2fe1a]/5' 
+            : 'bg-transparent border-white/5 text-slate-400 hover:text-slate-200 hover:border-white/10'
         }">${split}</button>
       `).join('');
     }
@@ -347,7 +388,7 @@
       const ratingBadge = document.getElementById('lift-rating-badge');
 
       if (exerciseLogs.length === 0) {
-        prevDisplay.innerText = "No previous logs for this exercise yet.";
+        prevDisplay.innerHTML = `<span class="text-slate-500 italic">No logged lifts for this exercise.</span>`;
         ratingBadge.innerText = "Rating: --";
         return;
       }
@@ -407,7 +448,7 @@
       document.getElementById('input-reps').value = '';
       renderExerciseDetails();
       renderTodaySession();
-      startRestTimer(90); // automatically initiate rest timer
+      startRestTimer(90);
     }
 
     function deleteSet(setId) {
@@ -427,24 +468,24 @@
       document.getElementById('session-count').innerText = `${todaySets.length} sets logged`;
 
       if (todaySets.length === 0) {
-        list.innerHTML = `<p class="text-slate-500 italic text-center py-2">No sets recorded yet today.</p>`;
+        list.innerHTML = `<p class="text-slate-500 italic text-center py-2.5">No sets recorded yet today.</p>`;
         return;
       }
 
       list.innerHTML = todaySets.slice().reverse().map(s => `
-        <div class="bg-slate-900 border border-slate-800/80 p-3 rounded-xl flex justify-between items-center">
+        <div class="glass p-3 rounded-2xl flex justify-between items-center transition-all animate-[slideIn_0.35s_ease-out]">
           <div>
-            <div class="font-bold text-slate-200 text-xs">${s.exercise}</div>
-            <div class="text-[10px] text-cyan-400 font-semibold tracking-wide">${s.muscle}</div>
+            <div class="font-extrabold text-slate-100 text-xs">${s.exercise}</div>
+            <div class="text-[9px] text-[#d2fe1a] font-bold tracking-wider uppercase">${s.muscle}</div>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3.5">
             <div class="text-right">
-              <span class="font-extrabold text-sm text-cyan-300">${s.weight} kg × ${s.reps}</span>
-              <span class="text-slate-500 text-[10px] block font-medium">${s.volume.toLocaleString()} kg vol</span>
+              <span class="font-black text-sm text-[#d2fe1a]">${s.weight} kg × ${s.reps}</span>
+              <span class="text-slate-500 text-[9px] block font-bold uppercase tracking-wide">${s.volume.toLocaleString()} kg vol</span>
             </div>
-            <button onclick="deleteSet(${s.id})" class="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-slate-950 border border-slate-800">
+            <button onclick="deleteSet(${s.id})" class="text-rose-400 hover:text-rose-300 p-2 rounded-xl bg-[#111215] border border-white/5 active:scale-90 transition-all duration-200">
               <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
           </div>
@@ -467,7 +508,7 @@
       const container = document.getElementById('history-timeline');
 
       if (historyList.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-500">No logs found for ${selected}.</p>`;
+        container.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center">No logs found for ${selected}.</p>`;
         return;
       }
 
@@ -487,26 +528,28 @@
         const dayMax1RM = Math.max(...sets.map(s => s.weight * (1 + s.reps / 30)));
 
         let overloadNotice = '';
+        let glowClass = '';
         if (prevBest1RM > 0) {
           if (dayMax1RM > prevBest1RM) {
-            overloadNotice = `<span class="text-emerald-400 font-bold ml-1">▲ Overload</span>`;
+            overloadNotice = `<span class="text-[#d2fe1a] font-black tracking-widest text-[9px] bg-[#d2fe1a]/10 px-2.5 py-0.5 rounded-full border border-[#d2fe1a]/25 ml-1.5 uppercase">▲ OVERLOAD</span>`;
+            glowClass = 'overload-glow';
           } else if (dayMax1RM < prevBest1RM) {
-            overloadNotice = `<span class="text-rose-400 ml-1">▼</span>`;
+            overloadNotice = `<span class="text-rose-400 font-bold text-[9px] ml-1.5">▼ Drop</span>`;
           }
         }
         prevBest1RM = dayMax1RM;
 
         html += `
-          <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl text-xs space-y-2">
-            <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
-              <span class="font-bold text-slate-200">${d} ${overloadNotice}</span>
-              <span class="text-cyan-400 font-bold">${dayVol.toLocaleString()} kg total vol</span>
+          <div class="glass p-4 rounded-3xl space-y-2.5 transition-all ${glowClass}">
+            <div class="flex justify-between items-center border-b border-white/5 pb-2">
+              <span class="font-extrabold text-slate-100">${d} ${overloadNotice}</span>
+              <span class="text-[#d2fe1a] font-extrabold">${dayVol.toLocaleString()} kg</span>
             </div>
-            <div class="space-y-1.5 pt-1">
+            <div class="space-y-1.5 pt-0.5">
               ${sets.map((s, idx) => `
-                <div class="flex justify-between items-center bg-slate-950/60 px-2.5 py-1.5 rounded-lg border border-slate-800/60">
-                  <span class="text-slate-300">Set ${idx+1}: <strong class="text-cyan-400">${s.weight}kg × ${s.reps}</strong></span>
-                  <button onclick="deleteSet(${s.id})" class="text-rose-400 hover:text-rose-300 text-[11px] px-2 py-0.5 rounded bg-rose-950/30 border border-rose-900/50">Delete</button>
+                <div class="flex justify-between items-center bg-slate-950/45 px-3 py-2 rounded-2xl border border-white/5">
+                  <span class="text-slate-300">Set ${idx+1}: <strong class="text-slate-100">${s.weight}kg × ${s.reps}</strong></span>
+                  <button onclick="deleteSet(${s.id})" class="text-rose-400 hover:text-rose-300 text-[10px] font-extrabold px-3 py-1.5 rounded-xl bg-rose-950/30 border border-rose-900/50">Delete</button>
                 </div>
               `).join('')}
             </div>
@@ -530,7 +573,7 @@
       const breakdownEl = document.getElementById('muscle-breakdown');
 
       if (sortedMuscles.length === 0) {
-        breakdownEl.innerHTML = `<p class="text-xs text-slate-500">Log workouts to see muscle distribution.</p>`;
+        breakdownEl.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center">Log workouts to see distribution.</p>`;
         return;
       }
 
@@ -538,13 +581,13 @@
       breakdownEl.innerHTML = sortedMuscles.map(([muscle, vol]) => {
         const pct = Math.round((vol / maxMVol) * 100);
         return `
-          <div class="space-y-1.5">
-            <div class="flex justify-between text-xs">
+          <div class="space-y-2">
+            <div class="flex justify-between text-xs items-center">
               <span class="font-bold text-slate-300">${muscle}</span>
-              <span class="text-slate-400 font-medium">${vol.toLocaleString()} kg</span>
+              <span class="text-slate-400 font-bold">${vol.toLocaleString()} kg</span>
             </div>
-            <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
-              <div class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-2 rounded-full" style="width: ${pct}%"></div>
+            <div class="w-full bg-slate-950 rounded-full h-2.5 overflow-hidden border border-white/5 p-[1.5px]">
+              <div class="bg-gradient-to-r from-[#d2fe1a] to-emerald-400 h-full rounded-full transition-all duration-1000" style="width: ${pct}%"></div>
             </div>
           </div>
         `;
@@ -553,7 +596,8 @@
 
     /* Rest Timer Logic */
     function toggleTimerModal() {
-      document.getElementById('timer-modal').classList.toggle('hidden');
+      const modal = document.getElementById('timer-modal');
+      modal.classList.toggle('hidden');
     }
 
     function startRestTimer(seconds) {
@@ -567,7 +611,7 @@
         updateTimerDisplay();
         if (restTimeRemaining <= 0) {
           clearInterval(restTimerInterval);
-          document.getElementById('timer-display').innerText = "Rest Done!";
+          document.getElementById('timer-display').innerText = "DONE";
         }
       }, 1000);
     }
@@ -601,9 +645,9 @@
           localStorage.setItem("iron_logs", JSON.stringify(logs));
           localStorage.setItem("iron_profile", JSON.stringify(userProfile));
           init();
-          alert("Backup restored successfully!");
+          alert("Backup restored!");
         } catch (err) {
-          alert("Invalid backup file.");
+          alert("Invalid file format.");
         }
       };
       reader.readAsText(file);
@@ -617,7 +661,7 @@
       localStorage.setItem("iron_profile", JSON.stringify(userProfile));
       updateProfileDisplay();
       renderExerciseDetails();
-      alert("Profile updated!");
+      alert("Biometrics Updated!");
     }
 
     function updateProfileDisplay() {
