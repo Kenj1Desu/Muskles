@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>IronTrack PWA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0b0f19; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="pb-24 select-none">
+
+  <!-- Header -->
+  <header class="p-4 bg-slate-900 border-b border-slate-800 sticky top-0 z-40 flex justify-between items-center">
+    <div>
+      <h1 class="text-xl font-black tracking-wide text-cyan-400">IRONTRACK</h1>
+      <p id="user-stats-banner" class="text-xs text-slate-400">BW: -- kg | Ht: -- cm</p>
+    </div>
+    <button onclick="switchTab('profile')" class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-700">Profile</button>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="p-4 max-w-lg mx-auto">
+
+    <!-- TAB 1: WORKOUT LOGGING -->
+    <section id="tab-log" class="space-y-4">
+      <!-- Split Selector -->
+      <div>
+        <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Select Split</label>
+        <div class="grid grid-cols-2 gap-2" id="split-buttons"></div>
+      </div>
+
+      <!-- Exercise Selector -->
+      <div>
+        <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Select Exercise</label>
+        <select id="exercise-select" onchange="renderExerciseDetails()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-400"></select>
+      </div>
+
+      <!-- Exercise Card & Previous History -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <span id="target-muscle-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">Chest</span>
+          <span id="lift-rating-badge" class="text-xs text-amber-400 font-semibold">Rating: --</span>
+        </div>
+
+        <div class="bg-slate-950/70 p-3 rounded-lg border border-slate-800 text-xs">
+          <span class="text-slate-400 font-semibold block mb-1">Last Logged Session:</span>
+          <p id="prev-log-display" class="text-slate-300 italic">No previous logs for this exercise yet.</p>
+        </div>
+
+        <!-- Add Set Input -->
+        <div class="space-y-2 pt-2 border-t border-slate-800">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-0.5">Weight (kg)</label>
+              <input type="number" id="input-weight" placeholder="e.g. 60" step="0.5" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-center font-bold text-white focus:outline-none focus:border-cyan-400" />
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-0.5">Reps</label>
+              <input type="number" id="input-reps" placeholder="e.g. 10" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-center font-bold text-white focus:outline-none focus:border-cyan-400" />
+            </div>
+          </div>
+          <button onclick="logCurrentSet()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2.5 rounded-lg text-sm transition">Log Set</button>
+        </div>
+      </div>
+
+      <!-- Current Session Logged Sets -->
+      <div class="space-y-2">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Today's Completed Sets</h3>
+        <div id="session-sets-list" class="space-y-1.5 text-xs"></div>
+      </div>
+    </section>
+
+    <!-- TAB 2: OVERLOAD & HISTORY -->
+    <section id="tab-history" class="space-y-4 hidden">
+      <h2 class="text-base font-bold text-slate-200">Progressive Overload History</h2>
+      <select id="history-filter" onchange="renderHistory()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none"></select>
+      <div id="history-timeline" class="space-y-2.5"></div>
+    </section>
+
+    <!-- TAB 3: MUSCLE DISTRIBUTION & VOLUME -->
+    <section id="tab-analytics" class="space-y-4 hidden">
+      <h2 class="text-base font-bold text-slate-200">Volume & Muscle Frequency</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+          <span class="text-slate-400 text-xs">Total Volume (All-Time)</span>
+          <p id="stat-total-volume" class="text-xl font-bold text-cyan-400 mt-1">0 kg</p>
+        </div>
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+          <span class="text-slate-400 text-xs">Total Sets Logged</span>
+          <p id="stat-total-sets" class="text-xl font-bold text-emerald-400 mt-1">0</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+        <h3 class="text-xs font-bold text-slate-300 uppercase">Muscles Hit Most (By Volume)</h3>
+        <div id="muscle-breakdown" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <!-- TAB 4: PROFILE & SETTINGS -->
+    <section id="tab-profile" class="space-y-4 hidden">
+      <h2 class="text-base font-bold text-slate-200">Body Stats & Ratings</h2>
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Body Weight (kg)</label>
+          <input type="number" id="input-bw" placeholder="Weight in kg" step="0.5" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm" />
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Height (cm)</label>
+          <input type="number" id="input-height" placeholder="Height in cm" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm" />
+        </div>
+        <button onclick="saveUserProfile()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 rounded-lg text-sm">Save Profile</button>
+      </div>
+
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+        <h3 class="text-xs font-bold text-slate-300">Lift Rating Formula</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Estimated 1 Rep Max (E1RM) is derived using the Epley formula: <br/>
+          <code class="text-cyan-300">Weight × (1 + Reps / 30)</code>. <br/>
+          Relative strength is evaluated based on your body weight ratio:
+        </p>
+        <ul class="text-xs space-y-1 text-slate-400 list-disc list-inside">
+          <li>&lt; 0.75x BW: Beginner</li>
+          <li>0.75x – 1.1x BW: Novice</li>
+          <li>1.1x – 1.5x BW: Intermediate</li>
+          <li>&gt; 1.5x BW: Advanced</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-slate-950/95 border-t border-slate-800 max-w-lg mx-auto flex justify-around p-2.5 z-50">
+    <button onclick="switchTab('log')" id="nav-log" class="text-cyan-400 text-xs font-medium flex flex-col items-center">
+      <span>Log</span>
+    </button>
+    <button onclick="switchTab('history')" id="nav-history" class="text-slate-400 text-xs font-medium flex flex-col items-center">
+      <span>Progress</span>
+    </button>
+    <button onclick="switchTab('analytics')" id="nav-analytics" class="text-slate-400 text-xs font-medium flex flex-col items-center">
+      <span>Volume</span>
+    </button>
+    <button onclick="switchTab('profile')" id="nav-profile" class="text-slate-400 text-xs font-medium flex flex-col items-center">
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <script>
+    // Routines with muscle mapping
+    const ROUTINES = {
+      "Push": [
+        { name: "Incline DB. Press", muscle: "Upper Chest" },
+        { name: "Cable Lat Raise", muscle: "Side Delts" },
+        { name: "Machine Press (CL)", muscle: "Chest" },
+        { name: "Overhead Tri. Ext. Bar", muscle: "Triceps" },
+        { name: "Tri. Pushdown Bar", muscle: "Triceps" },
+        { name: "Pec Fly (Upper/Lower)", muscle: "Chest" }
+      ],
+      "Pull": [
+        { name: "Machine Pullovers", muscle: "Lats" },
+        { name: "Wide Grip Row", muscle: "Upper Back" },
+        { name: "Close grip Machine row", muscle: "Lats" },
+        { name: "Cable Rear delt flys", muscle: "Rear Delts" },
+        { name: "Shrugs", muscle: "Traps" },
+        { name: "Bayesian Curl", muscle: "Biceps" },
+        { name: "Hammer/Preacher Curl", muscle: "Biceps" }
+      ],
+      "Legs": [
+        { name: "Hack Squat", muscle: "Quads" },
+        { name: "Seated Hamstring Curl", muscle: "Hamstrings" },
+        { name: "Leg Extension", muscle: "Quads" },
+        { name: "Hip Adductor", muscle: "Adductors" },
+        { name: "Hip Thrust", muscle: "Glutes" },
+        { name: "Bayesian Curl", muscle: "Biceps" },
+        { name: "Standing Calf Raise", muscle: "Calves" }
+      ],
+      "Arm-Shoulder": [
+        { name: "Machine Shoulder Press", muscle: "Front Delts" },
+        { name: "Bayesian Curl", muscle: "Biceps" },
+        { name: "Cable Lateral Raise", muscle: "Side Delts" },
+        { name: "Overhead Triceps Extension", muscle: "Triceps" },
+        { name: "Preacher Curl", muscle: "Biceps" },
+        { name: "Triceps Pushdown", muscle: "Triceps" }
+      ]
+    };
+
+    let currentSplit = "Push";
+    let logs = JSON.parse(localStorage.getItem("iron_logs") || "[]");
+    let userProfile = JSON.parse(localStorage.getItem("iron_profile") || '{"weight": 70, "height": 175}');
+
+    function init() {
+      renderSplitButtons();
+      populateExerciseSelect();
+      updateProfileDisplay();
+      renderExerciseDetails();
+      renderTodaySession();
+      populateHistoryFilter();
+    }
+
+    function switchTab(tabId) {
+      ['log', 'history', 'analytics', 'profile'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        document.getElementById(`nav-${t}`).classList.replace('text-cyan-400', 'text-slate-400');
+      });
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      document.getElementById(`nav-${tabId}`).classList.replace('text-slate-400', 'text-cyan-400');
+
+      if (tabId === 'history') renderHistory();
+      if (tabId === 'analytics') renderAnalytics();
+    }
+
+    function renderSplitButtons() {
+      const container = document.getElementById('split-buttons');
+      container.innerHTML = Object.keys(ROUTINES).map(split => `
+        <button onclick="setSplit('${split}')" class="p-2 text-xs font-semibold rounded-lg border transition ${
+          currentSplit === split ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500' : 'bg-slate-900 border-slate-800 text-slate-400'
+        }">${split}</button>
+      `).join('');
+    }
+
+    function setSplit(split) {
+      currentSplit = split;
+      renderSplitButtons();
+      populateExerciseSelect();
+      renderExerciseDetails();
+    }
+
+    function populateExerciseSelect() {
+      const select = document.getElementById('exercise-select');
+      const exercises = ROUTINES[currentSplit];
+      select.innerHTML = exercises.map(ex => `<option value="${ex.name}">${ex.name}</option>`).join('');
+    }
+
+    function getSelectedExerciseObj() {
+      const exName = document.getElementById('exercise-select').value;
+      for (const split in ROUTINES) {
+        const found = ROUTINES[split].find(e => e.name === exName);
+        if (found) return found;
+      }
+      return { name: exName, muscle: "Other" };
+    }
+
+    function renderExerciseDetails() {
+      const ex = getSelectedExerciseObj();
+      document.getElementById('target-muscle-badge').innerText = ex.muscle;
+
+      const exerciseLogs = logs.filter(l => l.exercise === ex.name);
+      const prevDisplay = document.getElementById('prev-log-display');
+      const ratingBadge = document.getElementById('lift-rating-badge');
+
+      if (exerciseLogs.length === 0) {
+        prevDisplay.innerText = "No previous sets logged.";
+        ratingBadge.innerText = "Rating: --";
+        return;
+      }
+
+      // Latest session grouping
+      const latestDate = exerciseLogs[exerciseLogs.length - 1].date;
+      const latestSessionSets = exerciseLogs.filter(l => l.date === latestDate);
+      prevDisplay.innerHTML = `${latestDate}: ` + latestSessionSets.map((s, i) => `S${i+1}: <strong>${s.weight}kg × ${s.reps}</strong>`).join(', ');
+
+      // Calculate Best E1RM and Rate
+      let maxE1RM = 0;
+      exerciseLogs.forEach(s => {
+        const e1rm = s.weight * (1 + s.reps / 30);
+        if (e1rm > maxE1RM) maxE1RM = e1rm;
+      });
+
+      const bw = userProfile.weight || 70;
+      const ratio = (maxE1RM / bw).toFixed(2);
+      let tier = "Beginner";
+      if (ratio >= 1.5) tier = "Advanced";
+      else if (ratio >= 1.1) tier = "Intermediate";
+      else if (ratio >= 0.75) tier = "Novice";
+
+      ratingBadge.innerText = `Rating: ${tier} (${ratio}x BW)`;
+    }
+
+    function logCurrentSet() {
+      const weight = parseFloat(document.getElementById('input-weight').value);
+      const reps = parseInt(document.getElementById('input-reps').value, 10);
+      const ex = getSelectedExerciseObj();
+
+      if (isNaN(weight) || isNaN(reps) || reps <= 0) {
+        alert("Please enter valid weight and reps");
+        return;
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      const entry = {
+        id: Date.now(),
+        date: today,
+        split: currentSplit,
+        exercise: ex.name,
+        muscle: ex.muscle,
+        weight: weight,
+        reps: reps,
+        volume: weight * reps
+      };
+
+      logs.push(entry);
+      localStorage.setItem("iron_logs", JSON.stringify(logs));
+
+      document.getElementById('input-reps').value = '';
+      renderExerciseDetails();
+      renderTodaySession();
+    }
+
+    function renderTodaySession() {
+      const today = new Date().toISOString().split('T')[0];
+      const list = document.getElementById('session-sets-list');
+      const todaySets = logs.filter(l => l.date === today);
+
+      if (todaySets.length === 0) {
+        list.innerHTML = `<p class="text-slate-500 italic">No sets logged yet today.</p>`;
+        return;
+      }
+
+      list.innerHTML = todaySets.slice().reverse().map(s => `
+        <div class="bg-slate-900 border border-slate-800 p-2 rounded flex justify-between items-center">
+          <div>
+            <span class="font-medium text-slate-200">${s.exercise}</span>
+            <span class="text-slate-500 text-[10px] ml-1">(${s.muscle})</span>
+          </div>
+          <div class="text-right">
+            <span class="font-bold text-cyan-400">${s.weight} kg × ${s.reps}</span>
+            <span class="text-slate-500 text-[10px] ml-1">(${s.volume} kg vol)</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function populateHistoryFilter() {
+      const select = document.getElementById('history-filter');
+      const allExercises = [];
+      Object.values(ROUTINES).forEach(list => list.forEach(item => {
+        if (!allExercises.includes(item.name)) allExercises.push(item.name);
+      }));
+      select.innerHTML = allExercises.map(e => `<option value="${e}">${e}</option>`).join('');
+    }
+
+    function renderHistory() {
+      const selected = document.getElementById('history-filter').value;
+      const historyList = logs.filter(l => l.exercise === selected);
+      const container = document.getElementById('history-timeline');
+
+      if (historyList.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500">No logs found for ${selected}.</p>`;
+        return;
+      }
+
+      // Group sets by date
+      const grouped = {};
+      historyList.forEach(s => {
+        if (!grouped[s.date]) grouped[s.date] = [];
+        grouped[s.date].push(s);
+      });
+
+      const dates = Object.keys(grouped).sort();
+      let html = '';
+      let prevBest1RM = 0;
+
+      dates.forEach(d => {
+        const sets = grouped[d];
+        const dayVol = sets.reduce((acc, s) => acc + s.volume, 0);
+        const dayMax1RM = Math.max(...sets.map(s => s.weight * (1 + s.reps / 30)));
+
+        let overloadNotice = '';
+        if (prevBest1RM > 0) {
+          if (dayMax1RM > prevBest1RM) {
+            overloadNotice = `<span class="text-emerald-400 font-bold ml-1">▲ Overload</span>`;
+          } else if (dayMax1RM < prevBest1RM) {
+            overloadNotice = `<span class="text-rose-400 ml-1">▼</span>`;
+          }
+        }
+        prevBest1RM = dayMax1RM;
+
+        html += `
+          <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg text-xs space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-slate-200">${d} ${overloadNotice}</span>
+              <span class="text-cyan-400 font-semibold">${dayVol.toLocaleString()} kg total vol</span>
+            </div>
+            <div class="text-slate-400 flex flex-wrap gap-2 pt-1">
+              ${sets.map((s, idx) => `<span>S${idx+1}: <strong>${s.weight}kg × ${s.reps}</strong></span>`).join(' • ')}
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function renderAnalytics() {
+      const totalVol = logs.reduce((acc, s) => acc + s.volume, 0);
+      document.getElementById('stat-total-volume').innerText = `${totalVol.toLocaleString()} kg`;
+      document.getElementById('stat-total-sets').innerText = logs.length;
+
+      // Group by muscle
+      const muscleVol = {};
+      logs.forEach(s => {
+        muscleVol[s.muscle] = (muscleVol[s.muscle] || 0) + s.volume;
+      });
+
+      const sortedMuscles = Object.entries(muscleVol).sort((a, b) => b[1] - a[1]);
+      const breakdownEl = document.getElementById('muscle-breakdown');
+
+      if (sortedMuscles.length === 0) {
+        breakdownEl.innerHTML = `<p class="text-xs text-slate-500">Log workouts to see muscle distribution.</p>`;
+        return;
+      }
+
+      const maxMVol = sortedMuscles[0][1] || 1;
+      breakdownEl.innerHTML = sortedMuscles.map(([muscle, vol]) => {
+        const pct = Math.round((vol / maxMVol) * 100);
+        return `
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="font-medium text-slate-300">${muscle}</span>
+              <span class="text-slate-400">${vol.toLocaleString()} kg</span>
+            </div>
+            <div class="w-full bg-slate-950 rounded-full h-2">
+              <div class="bg-cyan-500 h-2 rounded-full" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function saveUserProfile() {
+      const w = parseFloat(document.getElementById('input-bw').value);
+      const h = parseFloat(document.getElementById('input-height').value);
+      if (w) userProfile.weight = w;
+      if (h) userProfile.height = h;
+      localStorage.setItem("iron_profile", JSON.stringify(userProfile));
+      updateProfileDisplay();
+      renderExerciseDetails();
+      alert("Profile updated successfully!");
+    }
+
+    function updateProfileDisplay() {
+      document.getElementById('user-stats-banner').innerText = `BW: ${userProfile.weight || '--'} kg | Ht: ${userProfile.height || '--'} cm`;
+      document.getElementById('input-bw').value = userProfile.weight || '';
+      document.getElementById('input-height').value = userProfile.height || '';
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
